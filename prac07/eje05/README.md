@@ -1,43 +1,80 @@
-# Ejercicio 05: Singleton Thread-Safe con Bloqueo (Double-Checked Locking)
+# Ejercicio 05: Singleton Thread-Safe (Double-Checked Locking)
+
+## Descripción
+Implementación de Singleton seguro para entornos multihilo utilizando double-checked locking y mutexes. Incluye versiones thread-safe de Logger y ConexionBD.
 
 ## Objetivo
-Modificar las implementaciones de Logger y ConexionBD para hacerlas seguras en entornos multihilo (thread-safe), utilizando técnicas de bloqueo y double-checked locking para evitar race conditions.
+Modificar las implementaciones previas para hacerlas seguras contra race conditions en aplicaciones concurrentes con múltiples hilos.
 
-## Descripción del Problema
+## El Problema de Concurrencia
 
-### El Problema de Concurrencia
-En aplicaciones con múltiples hilos (threads), el patrón Singleton básico presenta un problema crítico conocido como **race condition**:
-
-```python
-# Código NO thread-safe
-if cls._instancia is None:           # Thread A y Thread B ejecutan esta línea simultáneamente
-    cls._instancia = crear_nueva()   # Ambos crean una instancia (¡2 instancias!)
-return cls._instancia
+### Race Condition en Singleton Básico
+```cpp
+// Código NO thread-safe
+if (instancia == nullptr) {           // Hilo A y B verifican simultáneamente
+    instancia = new Singleton();      // Ambos crean una instancia
+}
+return instancia;                      // ❌ Dos instancias creadas
 ```
 
-**Escenario de problema:**
-1. Thread A verifica que `_instancia` es None → TRUE
-2. Thread B verifica que `_instancia` es None → TRUE (aún no creada)
-3. Thread A crea una instancia
-4. Thread B crea otra instancia diferente
-5. ❌ **Resultado**: Dos instancias del Singleton
-
-### Consecuencias en la Práctica
-- **Logger**: Múltiples instancias pueden corromper el archivo de log
-- **Conexión BD**: Múltiples conexiones consumen recursos innecesarios
-- **Pérdida de sincronización**: Estado inconsistente entre componentes
+**Consecuencias**:
+- Logger: Corrupción del archivo de log
+- ConexionBD: Múltiples conexiones consumiendo recursos
+- Estado inconsistente entre componentes
 
 ## Solución: Double-Checked Locking
 
 ### Técnica Implementada
+```cpp
+// Primera verificación (sin lock - rápida)
+if (instancia == nullptr) {
+    std::lock_guard<std::mutex> lock(mutexInstancia);
+    // Segunda verificación (con lock - segura)
+    if (instancia == nullptr) {
+        instancia = new Singleton();
+    }
+}
+return instancia;
+```
 
-```python
-# Primera verificación (sin lock - rápida)
-if cls._instancia is None:
-    # Solo se bloquea si realmente necesitamos crear la instancia
-    with cls._lock:
-        # Segunda verificación (con lock - segura)
-        if cls._instancia is None:
+### Ventajas
+1. **Primera verificación**: Rápida, sin bloqueo si la instancia existe
+2. **Lock**: Solo se activa si es necesario crear la instancia
+3. **Segunda verificación**: Asegura que solo un hilo crea la instancia
+
+## Implementación
+
+### LoggerThreadSafe
+- **mutexInstancia**: Protege la creación de la instancia
+- **mutexEscritura**: Protege las operaciones de I/O al archivo
+- Garantiza escrituras atómicas sin corrupción de datos
+
+### ConexionBDThreadSafe
+- **mutexInstancia**: Protege instanciación
+- **mutexConexion**: Protege estado de conexión
+- **mutexContador**: Protege contador de consultas
+- Operaciones thread-safe: conectar(), ejecutarConsulta()
+
+### Pruebas Multihilo
+- Múltiples hilos intentan crear instancias simultáneamente
+- Ejecución de operaciones concurrentes
+- Verificación de instancia única
+
+## Compilación y Ejecución
+
+```bash
+g++ -std=c++11 main.cpp -o singleton_threadsafe -pthread
+./singleton_threadsafe
+```
+
+**Nota**: La bandera `-pthread` es necesaria para soporte de hilos.
+
+## Resultado Esperado
+- Solo se crea una instancia del Singleton por clase
+- Todas las referencias tienen la misma dirección de memoria
+- Las operaciones concurrentes se ejecutan de forma segura
+- No hay race conditions ni corrupción de datos
+- Archivo `bitacora_threadsafe.log` contiene logs de todos los hilos
             cls._instancia = crear_nueva()
 return cls._instancia
 ```

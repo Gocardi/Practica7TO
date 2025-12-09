@@ -1,52 +1,58 @@
-# Ejercicio 04: Singleton en un Juego (ControlJuego)
+# Ejercicio 04: Singleton en un Juego
+
+## Descripción
+Sistema de control de estado global para un videojuego utilizando el patrón Singleton. Gestiona nivel, puntaje, vidas y estadísticas compartidas entre todos los componentes del juego.
 
 ## Objetivo
-Desarrollar una clase `ControlJuego` para manejar el estado global de un juego (nivel actual, puntaje, vidas) usando el patrón Singleton para que todos los componentes accedan y modifiquen el mismo estado.
-
-## Descripción del Problema
-En el desarrollo de videojuegos, múltiples componentes necesitan acceder y modificar el estado del juego:
-- **Jugador**: Necesita conocer su puntaje, vidas y nivel
-- **Enemigos**: Deben poder afectar las vidas del jugador y sumar puntos al ser eliminados
-- **Items**: Modifican el estado al ser recolectados (puntos, vidas, etc.)
-- **Interfaz**: Debe mostrar el estado actualizado en tiempo real
-- **Sistema de niveles**: Gestiona progresión y dificultad
-
-Sin un estado centralizado, estos componentes tendrían que comunicarse entre sí constantemente, creando un sistema complejo y propenso a errores. El Singleton resuelve esto proporcionando un único punto de acceso al estado del juego.
+Implementar una clase `ControlJuego` que centralice el estado del juego, permitiendo que todos los componentes (Jugador, Enemigos, Items, Interfaz) accedan y modifiquen el mismo estado de forma consistente.
 
 ## Implementación
 
-### Clase ControlJuego (Singleton)
+### Características Principales
+- Estado global compartido: nivel, puntaje, vidas
+- Gestión de partidas: iniciar, finalizar, pausar
+- Sistema de progresión: niveles, bonus, récords
+- Estadísticas: enemigos eliminados, items recolectados
+- Validación de estado (solo modificable durante partida activa)
 
-#### Atributos de Estado
-- `_nivel_actual`: Nivel en el que se encuentra el jugador
-- `_puntaje`: Puntos acumulados en la partida actual
-- `_vidas`: Vidas restantes del jugador
-- `_puntuacion_maxima`: Récord histórico de puntuación
-- `_juego_en_curso`: Indica si hay una partida activa
-- `_enemigos_eliminados`: Contador de enemigos derrotados
-- `_items_recolectados`: Contador de items recolectados
+### Estructura
+```
+ControlJuego (Singleton)
+├── nivelActual
+├── puntaje
+├── vidas
+├── puntuacionMaxima
+├── juegoEnCurso
+├── enemigosEliminados
+├── itemsRecolectados
+└── métodos:
+    ├── obtenerInstancia()
+    ├── iniciarJuego()
+    ├── finalizarJuego()
+    ├── subirNivel()
+    ├── sumarPuntos()
+    ├── perderVida() / ganarVida()
+    └── mostrarEstado()
+```
 
-#### Métodos Principales
+### Componentes del Juego
+- **Jugador**: Realiza acciones, recibe daño
+- **Enemigo**: Puede ser eliminado, otorga puntos
+- **Item**: Efectos (puntos, vida, poder)
+- **InterfazJuego**: Visualiza el estado
 
-**Gestión del Juego:**
-- `iniciar_juego()`: Inicia una nueva partida, reinicia valores
-- `finalizar_juego()`: Termina la partida, guarda récord
-- `mostrar_estado()`: Muestra toda la información del estado actual
+## Compilación y Ejecución
 
-**Gestión de Progreso:**
-- `subir_nivel()`: Avanza al siguiente nivel, otorga bonus
-- `sumar_puntos(puntos)`: Añade puntos al puntaje
-- `perder_vida()`: Resta una vida, verifica game over
-- `ganar_vida()`: Añade una vida extra
+```bash
+g++ -std=c++11 main.cpp -o controljuego
+./controljuego
+```
 
-**Estadísticas:**
-- `registrar_enemigo_eliminado()`: Incrementa contador
-- `registrar_item_recolectado()`: Incrementa contador
-
-**Getters:**
-- `get_nivel()`, `get_puntaje()`, `get_vidas()`, `esta_en_curso()`
-
-## Componentes del Juego
+## Resultado Esperado
+- Todos los componentes usan la misma instancia de ControlJuego
+- Los cambios de estado son visibles para todos los componentes
+- Las estadísticas se actualizan correctamente
+- El récord se mantiene entre partidas
 
 ### Clase Jugador
 Representa al jugador principal del juego. Interactúa con ControlJuego para:

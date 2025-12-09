@@ -1,44 +1,40 @@
-# Ejercicio 01: Implementación Directa del Singleton
+# Ejercicio 01: Implementación Básica del Singleton
+
+## Descripción
+Implementación de una clase `Configuracion` que almacena configuraciones del sistema (idioma y zona horaria) utilizando el patrón Singleton.
 
 ## Objetivo
-Crear una clase `Configuracion` que almacene las configuraciones generales del sistema (idioma y zona horaria) asegurando que solo exista una instancia de esta clase.
-
-## Descripción del Problema
-En muchas aplicaciones necesitamos mantener configuraciones globales que deben ser consistentes en toda la aplicación. El patrón Singleton garantiza que solo exista una única instancia de la clase de configuración.
+Garantizar que solo exista una instancia de la clase de configuración en toda la aplicación.
 
 ## Implementación
 
-### Clase Configuracion
-- **Atributo de clase `_instancia`**: Almacena la única instancia de la clase.
-- **Método `__new__`**: Sobrescrito para controlar la creación de instancias.
-- **Atributos de instancia**:
-  - `idioma`: Idioma del sistema (por defecto "Español")
-  - `zona_horaria`: Zona horaria del sistema (por defecto "UTC-6")
+### Características Principales
+- Constructor privado para prevenir instanciación externa
+- Método estático `obtenerInstancia()` para acceso controlado
+- Eliminación de constructores de copia y asignación
+- Gestión de memoria con método `destruirInstancia()`
 
-### Métodos
-- `set_idioma(idioma)`: Establece el idioma del sistema
-- `set_zona_horaria(zona)`: Establece la zona horaria
-- `mostrar_configuracion()`: Muestra los valores actuales de configuración
+### Estructura
+```
+Configuracion (Singleton)
+├── instancia (static)
+├── idioma
+├── zonaHoraria
+└── métodos:
+    ├── obtenerInstancia()
+    ├── setIdioma()
+    ├── setZonaHoraria()
+    └── mostrarConfiguracion()
+```
 
-## Características del Patrón Singleton Implementado
-1. **Control de instancia**: El método `__new__` verifica si ya existe una instancia antes de crear una nueva.
-2. **Inicialización única**: Los valores por defecto solo se establecen cuando se crea la primera instancia.
-3. **Acceso global**: Cualquier parte del código puede acceder a la misma instancia.
-
-## Ejecución
+## Compilación y Ejecución
 
 ```bash
-python configuracion.py
+g++ -std=c++11 main.cpp -o configuracion
+./configuracion
 ```
 
 ## Resultado Esperado
-El programa demuestra que:
-- Múltiples "instancias" tienen el mismo ID de objeto
-- Los cambios realizados desde cualquier referencia se reflejan en todas
+- Múltiples referencias apuntan a la misma dirección de memoria
+- Los cambios desde cualquier referencia se reflejan en todas
 - Solo existe una configuración en memoria
-
-## Ventajas de este Enfoque
-- Garantiza consistencia en la configuración
-- Evita duplicación de datos
-- Fácil acceso desde cualquier parte del código
-- Control centralizado de configuraciones
